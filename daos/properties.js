@@ -48,6 +48,11 @@ const propertiesSchema = new Schema(
       type: Number,
       default: 0, 
     },
+    status: {
+      type: String,
+      enum: ['Available', 'Sold', 'Rented'],
+      default: 'Available',
+    },
     agents: [
       {
         type: Schema.Types.ObjectId,
