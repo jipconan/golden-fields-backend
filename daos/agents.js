@@ -42,6 +42,10 @@ const agentsSchema = new Schema(
     phone: {
       type: Number,
     },
+    availability: {
+      type: Boolean,
+      default: true, 
+    },
     properties: [
       {
         type: Schema.Types.ObjectId,
