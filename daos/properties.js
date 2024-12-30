@@ -58,7 +58,11 @@ const propertiesSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: 'Agents'
       }
-    ]    
+    ],
+    type: {
+      type: String,
+      default: 'property'
+    },
   },
   {
     timestamps: true,
