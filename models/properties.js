@@ -1,4 +1,5 @@
 const propertiesDao = require('../daos/properties');
+const { toLowerCase } = require('../utils/formatText');
 
 module.exports = {
   getAllPropertiesData,
@@ -17,8 +18,27 @@ async function getPropertyByIdData(id) {
   return await propertiesDao.findById(id);
 }
 
-async function getPropertiesByCategoryData(param1, param2, param3) {
-  return await propertiesDao.find(param1, param2, param3);
+async function getPropertiesByCategoryData(Location, HousingType, Pricing) {
+  const filterCriteria = {};
+
+  // Define filter logic based on (Location)
+  if (Location) {
+    lowerCaseLocation = toLowerCase(Location);
+    filterCriteria.area = lowerCaseLocation;
+  }
+
+  // Define filter logic based on (HousingType)
+  if (HousingType) {
+    filterCriteria.propertyType = HousingType;
+  }
+
+  // Define filter logic based on (Pricing)
+  if (Pricing) {
+    filterCriteria.price = { $gt: Pricing };
+  }
+
+  // Fetch data with filter and sort criteria
+  return await propertiesDao.find(filterCriteria);
 }
 
 async function createPropertyData(data) {

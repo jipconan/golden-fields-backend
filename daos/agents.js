@@ -7,6 +7,14 @@ const agentsSchema = new Schema(
       type: String,
       required: true,
     },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
     experience: {
       type: Number,
       default: 0, 

@@ -3,13 +3,10 @@ const router = express.Router();
 const agentsCtrl = require('../controllers/agents');
 
 // GET all agents
-router.get('/', agentsCtrl.getAllAgents);
+router.get('/', agentsCtrl.getAgents);
 
 // GET a single agent by ID
 router.get('/agent/:id', agentsCtrl.getAgentById);
-
-// GET all agents based on CategoryName
-router.get('/category/:category', agentsCtrl.getAgentsByCategory);
 
 // POST create a new agent
 router.post('/create', agentsCtrl.createAgent);

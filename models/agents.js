@@ -17,8 +17,31 @@ async function getAgentByIdData(id) {
   return await agentsDao.findById(id);
 }
 
-async function getAgentsByCategoryData(param1, param2, param3) {
-  return await agentsDao.find(param1, param2, param3);
+async function getAgentsByCategoryData(Names, Experience, Languages) {
+  // Define sorting logic based on (Names)
+  const sortCriteria = {};
+  if (Names === 'Sort Z-A') {
+    sortCriteria.name = -1; 
+  } else if (Names === 'Sort A-Z') {
+    sortCriteria.name = 1; 
+  } else if (Names === 'Sort by First Name') {
+    sortCriteria.firstName = 1;
+  } else if (Names === 'Sort by Last Name') {
+    sortCriteria.lastName = 1;  
+  }
+
+   // Define filter logic based on (Experience)
+  const filterCriteria = {};
+  if (Experience) {
+    filterCriteria.experience = { $gt: Experience };
+  }
+  // Define filter logic based on (Languages)
+  if (Languages) {
+    filterCriteria.languages = { $in: Languages };
+  }
+
+  // Fetch data with filter and sort criteria
+  return await agentsDao.find(filterCriteria).sort(sortCriteria);
 }
 
 async function createAgentData(data) {
