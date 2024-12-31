@@ -11,6 +11,10 @@ const propertiesSchema = new Schema(
       type: String,
       required: true,
     },
+    area: {
+      type: String,
+      required: true,
+    },
     propertyType: {
       type: String,
       enum: ['HDB', 'Hybrid', 'Private'],

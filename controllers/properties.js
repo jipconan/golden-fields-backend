@@ -2,23 +2,45 @@ const propertiesModel = require('../models/properties');
 const { toLowerCase } = require('../utils/formatText');
 
 module.exports = {
-  getAllProperties,
+  getProperties,
   getPropertyById,
-  getPropertiesByCategory,
   createProperty,
   updateProperty,
   deleteProperty,
 };
 
-async function getAllProperties(req, res) {
+async function getProperties(req, res) {
   try {
-    const data = await propertiesModel.getAllPropertiesData();
+    const { Location, 'Housing Type': HousingType, Pricing } = req.query;
+  
+    let data;
+
+    if (Location || HousingType || Pricing) {
+      // console.log(Location, HousingType, Pricing);
+  
+      // Fetch data based on available params
+      data = await propertiesModel.getPropertiesByCategoryData(
+        Location,
+        HousingType,
+        Pricing
+      );
+      
+      if (!data || data.length === 0) {
+        return res.status(404).json({ message: 'No properties found for this category' });
+      }
+    } else {
+      // Fetch all properties if no filters are applied
+      data = await propertiesModel.getAllPropertiesData();
+    }
+    // Ensure you're sending the data variable here
     res.status(200).json(data);
-  } catch (err) {
-    console.error(err); // Log the error for debugging
-    res.status(500).json({ error: 'Failed to retrieve properties' });
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    if (!res.headersSent) {  // prevent sending multiple responses
+      res.status(500).json({ error: "Failed to fetch properties" });
+    }
   }
-}
+};
 
 async function getPropertyById(req, res) {
   try {
@@ -30,38 +52,6 @@ async function getPropertyById(req, res) {
   } catch (err) {
     console.error(err); // Log the error for debugging
     res.status(500).json({ error: 'Failed to retrieve property' });
-  }
-}
-
-async function getPropertiesByCategory(req, res) {
-  try {
-    const params = ['location', 'propertyType'];
-    const lowercaseParams = params.reduce((acc, param) => {
-      if (req.params[param]) {
-        acc[param] = toLowerCase(req.params[param]);
-      }
-      return acc;
-    }, {});
-
-    const { location: lowercaseLocation, propertyType: lowercasePropertyType } = lowercaseParams;
-
-    // Handle price parameter
-    const price = req.params.price ? parseInt(req.params.price, 10) : null;
-    if (req.params.price && isNaN(price)) {
-      return res.status(400).json({ message: 'Invalid price value' });
-    }
-
-    // Call the model with available parameters
-    const data = await propertiesModel.getPropertiesByCategoryData(lowercaseLocation, lowercasePropertyType, price);
-
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: 'No properties found for this category' });
-    }
-
-    res.status(200).json(data);
-  } catch (err) {
-    console.error(err); // Log the error for debugging
-    res.status(500).json({ error: 'Failed to retrieve properties by category' });
   }
 }
 

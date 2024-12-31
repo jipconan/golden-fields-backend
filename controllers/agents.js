@@ -2,22 +2,46 @@ const agentsModel = require('../models/agents');
 const { toLowerCase } = require('../utils/formatText');
 
 module.exports = {
-  getAllAgents,
+  getAgents,
   getAgentById,
-  getAgentsByCategory,
   createAgent,
   updateAgent,
   deleteAgent,
 };
 
-async function getAllAgents(req, res) {
+async function getAgents(req, res) {
   try {
-    const data = await agentsModel.getAllAgentsData();
+    const { Names, Experience, Languages } = req.query;
+  
+    let data;
+
+    if (Names || Experience || Languages) {
+      // console.log(Names, Experience, Languages);
+  
+      // Fetch data based on available params
+      data = await agentsModel.getAgentsByCategoryData(
+        Names,
+        Experience,
+        Languages
+      );
+      
+      if (!data || data.length === 0) {
+        return res.status(404).json({ message: 'No agents found for this category' });
+      }
+    } else {
+      // Fetch all agents if no filters are applied
+      data = await agentsModel.getAllAgentsData();
+    }
+    // Ensure you're sending the data variable here
     res.status(200).json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error fetching agents:", error);
+    if (!res.headersSent) {  // prevent sending multiple responses
+      res.status(500).json({ error: "Failed to fetch agents" });
+    }
   }
-}
+};
+
 
 async function getAgentById(req, res) {
   try {
@@ -28,32 +52,6 @@ async function getAgentById(req, res) {
     res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
-}
-
-async function getAgentsByCategory(req, res) {
-  try {
-    const params = ['name', 'experience', 'languages'];
-    const lowercaseParams = params.reduce((acc, param) => {
-      if (req.params[param]) {
-        acc[param] = toLowerCase(req.params[param]);
-      }
-      return acc;
-    }, {});
-
-    const { name: lowercaseName, experience: lowercaseExperience, languages: lowercaseLanguages } = lowercaseParams;
-
-    // Fetch data based on available params
-    const data = await agentsModel.getAgentsByCategoryData(lowercaseName, lowercaseExperience, lowercaseLanguages);
-
-    if (!data || data.length === 0) {
-      return res.status(404).json({ message: 'No agents found for this category' });
-    }
-
-    res.status(200).json(data);
-  } catch (err) {
-    console.error(err); // Log the error for debugging
-    res.status(500).json({ error: 'Failed to retrieve agents by category' });
   }
 }
 
